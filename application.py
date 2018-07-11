@@ -34,25 +34,27 @@ def login():
   password = request.form.get("password")
   newusername = request.form.get("newusername")
   newpassword = request.form.get("newpassword")
-  if newusername != '' and newpassword != '':
-    message="Wecome to the site, glad you were able to create an account!"
-    session['logged_in'] = True
-    session['username'] = newusername
-    db.execute("INSERT INTO login (username, password) VALUES (:username, :password)",
-      {"username": newusername, "password": newpassword})
-  elif username != '' and password != '':
-    # See if user exists.
-    rowcount = db.execute("SELECT * FROM login WHERE username = :username and password = :password", {"username": username, "password": password}).rowcount
-    if rowcount == 1:
-      message="Welcome Back!"
-      session['username'] = username
+  if session['logged_in'] != True:
+    if newusername != '' and newpassword != '':
+      message="Wecome to the site, glad you were able to create an account!"
       session['logged_in'] = True
-    elif rowcount == 0:
-      message="No user found, please try logging in again or create an account"
-      session['logged_in'] = False
-
-  #message=""
-
+      session['username'] = newusername
+      print(newusername)
+      if newusername != None and newpassword != None:
+        db.execute("INSERT INTO login (username, password) VALUES (:username, :password)",
+          {"username": newusername, "password": newpassword})
+    elif username != '' and password != '':
+      # See if user exists.
+      rowcount = db.execute("SELECT * FROM login WHERE username = :username and password = :password", {"username": username, "password": password}).rowcount
+      if rowcount == 1:
+        message="Welcome Back!"
+        session['username'] = username
+        session['logged_in'] = True
+      elif rowcount == 0:
+        message="No user found, please try logging in again or create an account"
+        session['logged_in'] = False
+  else:
+      message='already logged in'
   # All done commit to database!
   db.commit()
   return(render_template("login.html", message=message))
@@ -72,7 +74,7 @@ def location():
     #query = requests.get("https://api.darksky.net/forecast/34b6298c5f0fe67d3cc741bb29bb0e22/{lat},{long}").json()
     temp = query["currently"]["temperature"]
     location_comments = db.execute("SELECT * FROM checkin where zipcode = :zipcode", {"zipcode": zipcode}).fetchall()
-    already_commented_count = db.execute("SELECT count(*) FROM checkin where username = :username", {"username" : session['username']}).fetchone()
+    already_commented_count = db.execute("SELECT count(*) FROM checkin where username = :username and zipcode = :zipcode", {"username" : session['username'], "zipcode" : zipcode}).fetchone()
     if already_commented_count[0] == 1:
         already_commented = True
     else:
@@ -96,8 +98,13 @@ def checkin():
        already_commented = True
        db.commit()
      returned_zip_info = db.execute("SELECT * from locations WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchone()
-     lat = returned_zip_info[4]
-     long = returned_zip_info[5]
+     count_returned_zip_info = db.execute("SELECT count(*) from locations WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchone()
+     if count_returned_zip_info[0] == 1:
+       lat = returned_zip_info[4]
+       long = returned_zip_info[5]
+     else:
+       lat = ""
+       long = ""
      query = requests.get("https://api.darksky.net/forecast/34b6298c5f0fe67d3cc741bb29bb0e22/42.37,-71.11").json()
      #query = requests.get("https://api.darksky.net/forecast/34b6298c5f0fe67d3cc741bb29bb0e22/{lat},{long}").json()
      temp = query["currently"]["temperature"]
@@ -118,14 +125,20 @@ def currenttemp():
 def searchresults():
     zipcode = request.form.get("zipcode")
     returned_zip_info = db.execute("SELECT * from locations WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchone()
-    print(returned_zip_info)
-    lat = returned_zip_info[4]
-    long = returned_zip_info[5]
-    query = requests.get("https://api.darksky.net/forecast/34b6298c5f0fe67d3cc741bb29bb0e22/{{lat}},{{long}}").json()
-    print(query)
+    count_returned_zip_info = db.execute("SELECT count(*) from locations WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchone()
+    if count_returned_zip_info[0] == 1:
+      zipreturned = True
+      lat = returned_zip_info[4]
+      long = returned_zip_info[5]
+      query = requests.get("https://api.darksky.net/forecast/34b6298c5f0fe67d3cc741bb29bb0e22/{{lat}},{{long}}").json()
+    else:
+      zipreturned = False
+      lat = ''
+      long = ''
+      returned_zip_info = 'That zipcode is not in our database'
     #print(json.dumps(query["currently"], indent = 2))
     #temp = query["currently"]["temperature"]
     temp = "84";
     print(f"returned zipcode information is {returned_zip_info}")
-    return(render_template("searchresults.html", returned_zip_info=returned_zip_info, zipcode=zipcode, temp=temp))
+    return(render_template("searchresults.html", returned_zip_info=returned_zip_info, zipcode=zipcode, temp=temp, zipreturned=zipreturned))
 
