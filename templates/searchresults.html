@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block heading %}
+    <div class="jumbotron">Location search results</div>
+{% endblock %}
+
+{% block body %}
+    <h2>Details for zipcode {{zipcode}}:</h2>
+    <h2 class="headline2">Results are back from the locations table: {{returned_zip_info}}</h2>
+    <div><button class="btn btn-lg btn-primary btn-block"><a href="location?zipcode={{zipcode}}">Click here to go to this location's home page</a></button></div>
+    <div><button class="btn btn-lg btn-primary btn-block"><a href="login">Click here to search again</a></button</div>
+{% endblock %}

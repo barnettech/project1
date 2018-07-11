@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+
+{% block heading %}
+    <h2>Location Page for zipcode {{zipcode}}:</h2>
+    <h2>located at latitude {{lat}}, and longitude {{long}}</h2>
+{% endblock %}
+
+{% block body %}
+   <div>Hello welcome to the homepage for the zipcode {{zipcode}}</div>
+
+   <div>Here are details about this location:  {{returned_zip_info}}</div>
+
+   <div>current temperature at {{zipcode}} from the darksky api is: {{temp}}</div>
+
+   <form action="{{ url_for('checkin') }}" method="post">
+        Check in and leave a comment about this location:
+        <div><input type="text" name="yourusername" placeholder="Enter a username"></div>
+        <div><input type="text" name="comment" placeholder="Enter a comment"></div>
+        <input type="hidden" name="zipcode" value="{{zipcode}}">
+        <button class="btn btn-lg btn-primary btn-block">Submit</button>
+    </form>
+
+{% endblock %}
