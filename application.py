@@ -2,7 +2,7 @@ import os
 import requests, json
 import datetime
 
-from flask import Flask, render_template, request, session
+from flask import Flask, render_template, jsonify, request, session, abort
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from flask_session import Session
@@ -146,3 +146,22 @@ def searchresults():
     temp = "84";
     print(f"returned zipcode information is {returned_zip_info}")
     return(render_template("searchresults.html", returned_zip_info=returned_zip_info, zipcode=zipcode, temp=temp, zipreturned=zipreturned))
+
+@app.route("/api/<string:zipcode>")
+def zip_code(zipcode):
+    """Return details about a zip code."""
+    returned_zip_info = db.execute("SELECT * from locations WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchone()
+    count_returned_zip_info = db.execute("SELECT count(*) from locations WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchone()
+    if count_returned_zip_info[0] < 1:
+        return abort(404)
+    checkins = db.execute("SELECT count(*) from checkin WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchone()
+    #return 'the data is %s' % returned_zip_info
+    return jsonify({
+            "zip": returned_zip_info[1],
+            "place name": returned_zip_info[2],
+            "state": returned_zip_info[3],
+            "latitude": str(returned_zip_info[4]),
+            "longitude": str(returned_zip_info[5]),
+            "population": returned_zip_info[6],
+            "check_ins": checkins[0],
+        })
