@@ -6,9 +6,16 @@
 {% endblock %}
 
 {% block body %}
+  {% if session['logged_in'] %}
    <div>Hello welcome to the homepage for the zipcode {{zipcode}}</div> username is {{session['username']}}
 
    <div>Here are details about this location:  {{returned_zip_info}}</div>
+
+   <div>currently the time is {{time}}
+   <div>summary is {{currently['summary']}}</div>
+   <div>dewpoint is {{currently['dewPoint']}}</div>
+   <div>humidity is {{humidity}} %</div>
+
 
    <div>current temperature at {{zipcode}} from the darksky api is: {{temp}}</div>
    {{already_commented}}
@@ -23,7 +30,8 @@
     {% endif %}
 
     <div><button class="btn btn-lg btn-primary btn-block"><a href="login">Click here to search again</a></button></div>
+    <h2>Total checkins: {{total_checked_in}}</h2>
     <h2>Checkin comments:</h2>
         {{location_comments}}
-
+  {% endif %}
 {% endblock %}

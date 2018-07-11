@@ -72,15 +72,19 @@ def location():
     long = returned_zip_info[5]
     query = requests.get("https://api.darksky.net/forecast/34b6298c5f0fe67d3cc741bb29bb0e22/42.37,-71.11").json()
     #query = requests.get("https://api.darksky.net/forecast/34b6298c5f0fe67d3cc741bb29bb0e22/{lat},{long}").json()
+    currently = query["currently"]
     temp = query["currently"]["temperature"]
+    humidity = query["currently"]["humidity"] * 100
+    time = datetime.datetime.fromtimestamp(int(query["currently"]["time"])).strftime('%Y-%m-%d %H:%M:%S')
     location_comments = db.execute("SELECT * FROM checkin where zipcode = :zipcode", {"zipcode": zipcode}).fetchall()
     already_commented_count = db.execute("SELECT count(*) FROM checkin where username = :username and zipcode = :zipcode", {"username" : session['username'], "zipcode" : zipcode}).fetchone()
+    total_checked_in =  db.execute("SELECT count(*) FROM checkin where zipcode = :zipcode", {"zipcode" : zipcode}).fetchone()
     if already_commented_count[0] == 1:
         already_commented = True
     else:
         already_commented = False
     print(f"temp is {temp}")
-    return(render_template("location.html", zipcode=zipcode, returned_zip_info=returned_zip_info, lat=lat, long=long, temp=temp, location_comments=location_comments, already_commented_count=already_commented_count, already_commented=already_commented ))
+    return(render_template("location.html", total_checked_in=total_checked_in[0], zipcode=zipcode, time=time, humidity=humidity, returned_zip_info=returned_zip_info, lat=lat, long=long, temp=temp, currently=currently, location_comments=location_comments, already_commented_count=already_commented_count, already_commented=already_commented ))
 
 @app.route("/checkin", methods=['GET', 'POST'])
 def checkin():
@@ -88,7 +92,8 @@ def checkin():
      yourusername = request.form.get("yourusername")
      comment = request.form.get("comment")
      zipcode = request.form.get("zipcode")
-     already_commented_count = db.execute("SELECT count(*) FROM checkin where username = :username", {"username" : session['username']}).fetchone()
+     already_commented_count = db.execute("SELECT count(*) FROM checkin where username = :username and zipcode = :zipcode", {"username" : session['username'], "zipcode" : zipcode}).fetchone()
+     total_checked_in =  db.execute("SELECT count(*) FROM checkin where zipcode = :zipcode", {"zipcode" : zipcode}).fetchone()
      if already_commented_count[0] == 1:
         already_commented = True
      else:
@@ -109,7 +114,7 @@ def checkin():
      #query = requests.get("https://api.darksky.net/forecast/34b6298c5f0fe67d3cc741bb29bb0e22/{lat},{long}").json()
      temp = query["currently"]["temperature"]
      location_comments = db.execute("SELECT * FROM checkin where zipcode = :zipcode", {"zipcode": zipcode}).fetchall()
-     return(render_template("location.html", zipcode=zipcode, returned_zip_info=returned_zip_info, lat=lat, long=long, temp=temp, location_comments=location_comments, already_commented_count=already_commented_count, already_commented=already_commented ))
+     return(render_template("location.html", total_checked_in=total_checked_in[0], zipcode=zipcode, returned_zip_info=returned_zip_info, lat=lat, long=long, temp=temp, location_comments=location_comments, already_commented_count=already_commented_count, already_commented=already_commented ))
 
 @app.route("/currenttemp")
 def currenttemp():
@@ -141,4 +146,3 @@ def searchresults():
     temp = "84";
     print(f"returned zipcode information is {returned_zip_info}")
     return(render_template("searchresults.html", returned_zip_info=returned_zip_info, zipcode=zipcode, temp=temp, zipreturned=zipreturned))
-

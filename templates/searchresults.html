@@ -6,7 +6,8 @@
 
 {% block body %}
     <h2>Details for zipcode {{zipcode}}:</h2>
-    <h2 class="headline2">Results are back from the locations table: {{returned_zip_info}}</h2>
+    <h2 class="headline2">Results are back from the locations table
+    (id, zip code, city, state, latitude, longitude, population) respectively: {{returned_zip_info}}</h2>
     {% if zipreturned == true %}
       <div><button class="btn btn-lg btn-primary btn-block"><a href="location?zipcode={{zipcode}}">Click here to go to this location's home page</a></button></div>
     {% endif %}
