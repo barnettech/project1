@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block body %}
-   <div>Hello welcome to the homepage for the zipcode {{zipcode}}</div>
+   <div>Hello welcome to the homepage for the zipcode {{zipcode}}</div> username is {{session['username']}}
 
    <div>Here are details about this location:  {{returned_zip_info}}</div>
 
@@ -14,10 +14,13 @@
 
    <form action="{{ url_for('checkin') }}" method="post">
         Check in and leave a comment about this location:
-        <div><input type="text" name="yourusername" placeholder="Enter a username"></div>
-        <div><input type="text" name="comment" placeholder="Enter a comment"></div>
+        <div><input type="text" name="yourusername" value="{{session['username']}}" placeholder="Enter a username" readonly="readonly"></div>
+        <div><input id="commentinput" type="text" name="comment" maxlength="1000" placeholder="Enter a comment"></div>
         <input type="hidden" name="zipcode" value="{{zipcode}}">
         <button class="btn btn-lg btn-primary btn-block">Submit</button>
+
+        <h2>Checkin comments:</h2>
+        {{location_comments}}
     </form>
 
 {% endblock %}

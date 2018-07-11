@@ -22,6 +22,10 @@ button a, button a:hover {
   color: #ffffff;
 }
 
+#commentinput {
+  width: 98%;
+}
+
 .headline2 {
 
 }
