@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block heading %}
-    <h2>Location Page for zipcode {{zipcode}}:</h2>
+    <div class="jumbotron">Location Page for zipcode {{zipcode}}:</div>
     <h2>located at latitude {{lat}}, and longitude {{long}}</h2>
 {% endblock %}
 
@@ -11,16 +11,19 @@
    <div>Here are details about this location:  {{returned_zip_info}}</div>
 
    <div>current temperature at {{zipcode}} from the darksky api is: {{temp}}</div>
-
-   <form action="{{ url_for('checkin') }}" method="post">
+   {{already_commented}}
+   {% if already_commented == false %}
+     <form action="{{ url_for('checkin') }}" method="post">
         Check in and leave a comment about this location:
         <div><input type="text" name="yourusername" value="{{session['username']}}" placeholder="Enter a username" readonly="readonly"></div>
         <div><input id="commentinput" type="text" name="comment" maxlength="1000" placeholder="Enter a comment"></div>
         <input type="hidden" name="zipcode" value="{{zipcode}}">
         <button class="btn btn-lg btn-primary btn-block">Submit</button>
+      </form>
+    {% endif %}
 
-        <h2>Checkin comments:</h2>
+
+    <h2>Checkin comments:</h2>
         {{location_comments}}
-    </form>
 
 {% endblock %}

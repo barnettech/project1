@@ -26,6 +26,7 @@ button a, button a:hover {
   width: 98%;
 }
 
-.headline2 {
-
+.logout {
+  float: right;
+  padding-right: 15px;
 }

@@ -9,6 +9,7 @@
     <body>
         <div class='container'>
           {% if session['logged_in'] %}
+            <div class="logout"><a href="/logout">Log out </a></div>
           {% elif not homepage %}
              <a href="/">Try logging in again, click here ....</a>
           {% elif homepage %}

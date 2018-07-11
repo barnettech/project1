@@ -57,7 +57,12 @@ def login():
   db.commit()
   return(render_template("login.html", message=message))
 
-@app.route("/location")
+@app.route("/logout", methods=['GET', 'POST'])
+def logout():
+    session['logged_in'] = False
+    return(render_template("index.html", homepage=True))
+
+@app.route("/location", methods=['GET', 'POST'])
 def location():
     zipcode = request.args.get('zipcode')
     returned_zip_info = db.execute("SELECT * from locations WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchone()
@@ -67,19 +72,37 @@ def location():
     #query = requests.get("https://api.darksky.net/forecast/34b6298c5f0fe67d3cc741bb29bb0e22/{lat},{long}").json()
     temp = query["currently"]["temperature"]
     location_comments = db.execute("SELECT * FROM checkin where zipcode = :zipcode", {"zipcode": zipcode}).fetchall()
+    already_commented_count = db.execute("SELECT count(*) FROM checkin where username = :username", {"username" : session['username']}).fetchone()
+    if already_commented_count[0] == 1:
+        already_commented = True
+    else:
+        already_commented = False
     print(f"temp is {temp}")
-    return(render_template("location.html", zipcode=zipcode, returned_zip_info=returned_zip_info, lat=lat, long=long, temp=temp, location_comments=location_comments ))
+    return(render_template("location.html", zipcode=zipcode, returned_zip_info=returned_zip_info, lat=lat, long=long, temp=temp, location_comments=location_comments, already_commented_count=already_commented_count, already_commented=already_commented ))
 
-@app.route("/checkin", methods=['POST'])
+@app.route("/checkin", methods=['GET', 'POST'])
 def checkin():
      print('got in here')
      yourusername = request.form.get("yourusername")
      comment = request.form.get("comment")
      zipcode = request.form.get("zipcode")
-     print(comment)
-     db.execute("INSERT INTO checkin (zipcode, username, comment) VALUES (:zipcode, :username, :comment)", {"zipcode": zipcode, "username": yourusername, "comment": comment})
-     db.commit()
-     return(render_template("location.html"))
+     already_commented_count = db.execute("SELECT count(*) FROM checkin where username = :username", {"username" : session['username']}).fetchone()
+     if already_commented_count[0] == 1:
+        already_commented = True
+     else:
+        already_commented = False
+     if already_commented_count[0] == 0:
+       db.execute("INSERT INTO checkin (zipcode, username, comment) VALUES (:zipcode, :username, :comment)", {"zipcode": zipcode, "username": yourusername, "comment": comment})
+       already_commented = True
+       db.commit()
+     returned_zip_info = db.execute("SELECT * from locations WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchone()
+     lat = returned_zip_info[4]
+     long = returned_zip_info[5]
+     query = requests.get("https://api.darksky.net/forecast/34b6298c5f0fe67d3cc741bb29bb0e22/42.37,-71.11").json()
+     #query = requests.get("https://api.darksky.net/forecast/34b6298c5f0fe67d3cc741bb29bb0e22/{lat},{long}").json()
+     temp = query["currently"]["temperature"]
+     location_comments = db.execute("SELECT * FROM checkin where zipcode = :zipcode", {"zipcode": zipcode}).fetchall()
+     return(render_template("location.html", zipcode=zipcode, returned_zip_info=returned_zip_info, lat=lat, long=long, temp=temp, location_comments=location_comments, already_commented_count=already_commented_count, already_commented=already_commented ))
 
 @app.route("/currenttemp")
 def currenttemp():
