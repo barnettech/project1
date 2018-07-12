@@ -23,6 +23,7 @@
      <form action="{{ url_for('checkin') }}" method="post">
         Check in and leave a comment about this location:
         <div><input type="text" name="yourusername" value="{{session['username']}}" placeholder="Enter a username" readonly="readonly"></div>
+        <div><input type="text" name="zipcode" value="{{zipcode}}" placeholder="Enter a username" readonly="readonly"></div>
         <div><input id="commentinput" type="text" name="comment" maxlength="1000" placeholder="Enter a comment"></div>
         <input type="hidden" name="zipcode" value="{{zipcode}}">
         <button class="btn btn-lg btn-primary btn-block">Submit</button>

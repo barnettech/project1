@@ -94,7 +94,6 @@ def checkin():
      comment = request.form.get("comment")
      zipcode = request.form.get("zipcode")
      already_commented_count = db.execute("SELECT count(*) FROM checkin where username = :username and zipcode = :zipcode", {"username" : session['username'], "zipcode" : zipcode}).fetchone()
-     total_checked_in =  db.execute("SELECT count(*) FROM checkin where zipcode = :zipcode", {"zipcode" : zipcode}).fetchone()
      if already_commented_count[0] == 1:
         already_commented = True
      else:
@@ -106,38 +105,35 @@ def checkin():
      returned_zip_info = db.execute("SELECT * from locations WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchone()
      count_returned_zip_info = db.execute("SELECT count(*) from locations WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchone()
      if count_returned_zip_info[0] == 1:
-       lat = str(returned_zip_info[4])
-       long = str(returned_zip_info[5])
+       lat = float(returned_zip_info[4])
+       long = float(returned_zip_info[5])
+       thestring = f"https://api.darksky.net/forecast/34b6298c5f0fe67d3cc741bb29bb0e22/{lat},{long}"
+       query = requests.get(thestring).json()
+       currently = query["currently"]
+       temp = query["currently"]["temperature"]
      else:
        lat = ""
        long = ""
-     thestring = f"https://api.darksky.net/forecast/34b6298c5f0fe67d3cc741bb29bb0e22/{lat},{long}"
-     query = requests.get(thestring).json()
-     temp = query["currently"]["temperature"]
+
+     total_checked_in =  db.execute("SELECT count(*) FROM checkin where zipcode = :zipcode", {"zipcode" : zipcode}).fetchone()
      location_comments = db.execute("SELECT * FROM checkin where zipcode = :zipcode", {"zipcode": zipcode}).fetchall()
-     return(render_template("location.html", total_checked_in=total_checked_in[0], zipcode=zipcode, returned_zip_info=returned_zip_info, lat=lat, long=long, temp=temp, location_comments=location_comments, already_commented_count=already_commented_count, already_commented=already_commented ))
+     return(render_template("location.html", currently=currently, total_checked_in=total_checked_in[0], zipcode=zipcode, returned_zip_info=returned_zip_info, lat=lat, long=long, temp=temp, location_comments=location_comments, already_commented_count=already_commented_count, already_commented=already_commented ))
 
 @app.route("/searchresults", methods=['GET', 'POST'])
 def searchresults():
     zipcode = request.form.get("zipcode")
-    returned_zip_info = db.execute("SELECT * from locations WHERE zipcode like :zipcode", {"zipcode": '%60%'}).fetchall()
+    returned_zip_info = db.execute("SELECT * from locations WHERE zipcode like :zipcode", {"zipcode": f"%{zipcode}%"}).fetchall()
     #print('returned_zip_info ' + returned_zip_info)
     count_returned_zip_info = db.execute("SELECT count(*) from locations WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchone()
     if count_returned_zip_info[0] == 1:
       zipreturned = True
-      lat = returned_zip_info[4]
-      long = returned_zip_info[5]
-      query = requests.get("https://api.darksky.net/forecast/34b6298c5f0fe67d3cc741bb29bb0e22/{{lat}},{{long}}").json()
     else:
       zipreturned = False
       lat = ''
       long = ''
       returned_zip_info = 'That zipcode is not in our database'
-    #print(json.dumps(query["currently"], indent = 2))
-    #temp = query["currently"]["temperature"]
-    temp = "84";
     print(f"returned zipcode information is {returned_zip_info}")
-    return(render_template("searchresults.html", returned_zip_info=returned_zip_info, zipcode=zipcode, temp=temp, zipreturned=zipreturned))
+    return(render_template("searchresults.html", returned_zip_info=returned_zip_info, zipcode=zipcode, zipreturned=zipreturned))
 
 @app.route("/api/<string:zipcode>")
 def zip_code(zipcode):

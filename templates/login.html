@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block body %}
-   <div class="headline2">Hello there welcome.  {{message}} Enter a zipcode to search for:</div>
+   <div class="headline2">Hello there welcome.  {{message}} Enter a zipcode to search for (enter at least 4 characters):</div>
 
    {% if session['logged_in'] %}
      <form action="{{ url_for('searchresults') }}" method="post">

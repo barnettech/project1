@@ -7,10 +7,14 @@
 {% block body %}
     <h2>Details for zipcode {{zipcode}}:</h2>
     <h2 class="headline2">Results are back from the locations table
-    (id, zip code, city, state, latitude, longitude, population) respectively: {{returned_zip_info}}</h2>
-    {% if zipreturned == true %}
-      <div><button class="btn btn-lg btn-primary btn-block"><a href="location?zipcode={{zipcode}}">Click here to go to this location's home page</a></button></div>
-    {% endif %}
+    (id, zip code, city, state, latitude, longitude, population) respectively: </h2>
+    <ul>
+<ul>
+    {% for n in returned_zip_info %}
+      <a href="location?zipcode={{n[1]}}"><li>{{n}}</li></a>
+    {% endfor %}
+</ul>
+
       <div><button class="btn btn-lg btn-primary btn-block"><a href="login">Click here to search again</a></button></div>
 
 {% endblock %}
