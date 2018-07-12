@@ -8,6 +8,7 @@
     </head>
     <body>
         <div class='container'>
+          <!-- if logged in show logout button on every page -->
           {% if session['logged_in'] %}
             <div class="logout"><a href="/logout">Log out {{session['username']}}</a></div>
           {% elif not homepage %}

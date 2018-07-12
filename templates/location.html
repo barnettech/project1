@@ -18,7 +18,7 @@
 
 
    <div>current temperature at {{zipcode}} from the darksky api is: {{temp}}</div>
-   {{already_commented}}
+   <!-- only show the form if they haven't done a checkin here yet-->
    {% if already_commented == false %}
      <form action="{{ url_for('checkin') }}" method="post">
         Check in and leave a comment about this location:
@@ -32,6 +32,7 @@
 
     <div><button class="btn btn-lg btn-primary btn-block"><a href="login">Click here to search again</a></button></div>
     <h2>Total checkins: {{total_checked_in}}</h2>
+    <!-- show all the comments/checkins at this location -->
     <h2>Checkin comments:</h2>
         {{location_comments}}
   {% endif %}

@@ -13,4 +13,6 @@ Web Programming with Python and JavaScript
     c.)  searchresults.html show the results after looking up a zipcode in the database
     d.)  location.html shows the location page for a given zipcode
     e.)  login.html is the destination the route login sends you upon loggging in or registering
+    f.)  misc. files:  setenvars.sh sets the environment variables, connect_heroku.sh
+         is there to easily connect to the heroku db.
 

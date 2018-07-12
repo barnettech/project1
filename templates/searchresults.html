@@ -10,6 +10,7 @@
     (id, zip code, city, state, latitude, longitude, population) respectively: </h2>
     <ul>
 <ul>
+    <!-- show all the zipcodes matched in the search, and link to their location pages -->
     {% for n in returned_zip_info %}
       <a href="location?zipcode={{n[1]}}"><li>{{n}}</li></a>
     {% endfor %}
