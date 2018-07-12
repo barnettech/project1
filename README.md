@@ -18,4 +18,4 @@ Web Programming with Python and JavaScript
     e.)  login.html is the destination the route login sends you upon loggging in or registering
     f.)  misc. files:  setenvars.sh sets the environment variables, connect_heroku.sh
          is there to easily connect to the heroku db.
-
+    g.)  d42oslhd6lgnv4.sql is the db dump from heroku
