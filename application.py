@@ -7,7 +7,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from flask_session import Session
 from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
 
 app = Flask(__name__)
 
@@ -68,10 +67,12 @@ def logout():
 def location():
     zipcode = request.args.get('zipcode')
     returned_zip_info = db.execute("SELECT * from locations WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchone()
-    lat = returned_zip_info[4]
-    long = returned_zip_info[5]
-    query = requests.get("https://api.darksky.net/forecast/34b6298c5f0fe67d3cc741bb29bb0e22/42.37,-71.11").json()
-    #query = requests.get("https://api.darksky.net/forecast/34b6298c5f0fe67d3cc741bb29bb0e22/{lat},{long}").json()
+    lat = float(returned_zip_info[4])
+    long = float(returned_zip_info[5])
+    print('lat is ' + str(lat))
+    print('long is ' + str(long))
+    thestring = f"https://api.darksky.net/forecast/34b6298c5f0fe67d3cc741bb29bb0e22/{lat},{long}"
+    query = requests.get(thestring).json()
     currently = query["currently"]
     temp = query["currently"]["temperature"]
     humidity = query["currently"]["humidity"] * 100
@@ -105,31 +106,22 @@ def checkin():
      returned_zip_info = db.execute("SELECT * from locations WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchone()
      count_returned_zip_info = db.execute("SELECT count(*) from locations WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchone()
      if count_returned_zip_info[0] == 1:
-       lat = returned_zip_info[4]
-       long = returned_zip_info[5]
+       lat = str(returned_zip_info[4])
+       long = str(returned_zip_info[5])
      else:
        lat = ""
        long = ""
-     query = requests.get("https://api.darksky.net/forecast/34b6298c5f0fe67d3cc741bb29bb0e22/42.37,-71.11").json()
-     #query = requests.get("https://api.darksky.net/forecast/34b6298c5f0fe67d3cc741bb29bb0e22/{lat},{long}").json()
+     thestring = f"https://api.darksky.net/forecast/34b6298c5f0fe67d3cc741bb29bb0e22/{lat},{long}"
+     query = requests.get(thestring).json()
      temp = query["currently"]["temperature"]
      location_comments = db.execute("SELECT * FROM checkin where zipcode = :zipcode", {"zipcode": zipcode}).fetchall()
      return(render_template("location.html", total_checked_in=total_checked_in[0], zipcode=zipcode, returned_zip_info=returned_zip_info, lat=lat, long=long, temp=temp, location_comments=location_comments, already_commented_count=already_commented_count, already_commented=already_commented ))
 
-@app.route("/currenttemp")
-def currenttemp():
-    # 34b6298c5f0fe67d3cc741bb29bb0e22
-    # return "Project 1: TODO"
-    query = requests.get("https://api.darksky.net/forecast/34b6298c5f0fe67d3cc741bb29bb0e22/{{lat}},{{long}}").json()
-    temp = query["currently"]["temperature"]
-    # print(json.dumps(query["currently"], indent = 2))
-    # print(f"the temperature is {temp}")
-    return(render_template("currenttemp.html", temp=temp))
-
 @app.route("/searchresults", methods=['GET', 'POST'])
 def searchresults():
     zipcode = request.form.get("zipcode")
-    returned_zip_info = db.execute("SELECT * from locations WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchone()
+    returned_zip_info = db.execute("SELECT * from locations WHERE zipcode like :zipcode", {"zipcode": '%60%'}).fetchall()
+    #print('returned_zip_info ' + returned_zip_info)
     count_returned_zip_info = db.execute("SELECT count(*) from locations WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchone()
     if count_returned_zip_info[0] == 1:
       zipreturned = True
