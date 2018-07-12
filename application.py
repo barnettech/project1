@@ -126,9 +126,13 @@ def checkin():
        lat = ""
        long = ""
 
-     total_checked_in =  db.execute("SELECT count(*) FROM checkin where zipcode = :zipcode", {"zipcode" : zipcode}).fetchone()
-     location_comments = db.execute("SELECT * FROM checkin where zipcode = :zipcode", {"zipcode": zipcode}).fetchall()
-     return(render_template("location.html", currently=currently, total_checked_in=total_checked_in[0], zipcode=zipcode, returned_zip_info=returned_zip_info, lat=lat, long=long, temp=temp, location_comments=location_comments, already_commented_count=already_commented_count, already_commented=already_commented ))
+     total_checked_in =  db.execute("SELECT count(*) FROM checkin where zipcode = :zipcode",
+     {"zipcode" : zipcode}).fetchone()
+     location_comments = db.execute("SELECT * FROM checkin where zipcode = :zipcode",
+     {"zipcode": zipcode}).fetchall()
+     return(render_template("location.html", currently=currently, total_checked_in=total_checked_in[0],
+     zipcode=zipcode, returned_zip_info=returned_zip_info, lat=lat, long=long, temp=temp,
+     location_comments=location_comments, already_commented_count=already_commented_count, already_commented=already_commented ))
 
 #upon searching for a zipcode the results are shown after
 #calling this route
@@ -136,8 +140,10 @@ def checkin():
 def searchresults():
     zipcode = request.form.get("zipcode")
     #grab all the search results from the zipcode search from the db, passing in zip
-    returned_zip_info = db.execute("SELECT * from locations WHERE zipcode like :zipcode", {"zipcode": f"%{zipcode}%"}).fetchall()
-    count_returned_zip_info = db.execute("SELECT count(*) from locations WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchone()
+    returned_zip_info = db.execute("SELECT * from locations WHERE zipcode like :zipcode",
+    {"zipcode": f"%{zipcode}%"}).fetchall()
+    count_returned_zip_info = db.execute("SELECT count(*) from locations WHERE zipcode = :zipcode",
+    {"zipcode": zipcode}).fetchone()
     if count_returned_zip_info[0] == 1:
       zipreturned = True
     else:
@@ -146,19 +152,23 @@ def searchresults():
       long = ''
       returned_zip_info = 'That zipcode is not in our database'
     print(f"returned zipcode information is {returned_zip_info}")
-    return(render_template("searchresults.html", count_returned_zip_info=count_returned_zip_info[0],returned_zip_info=returned_zip_info, zipcode=zipcode, zipreturned=zipreturned))
+    return(render_template("searchresults.html", count_returned_zip_info=count_returned_zip_info[0],
+    returned_zip_info=returned_zip_info, zipcode=zipcode, zipreturned=zipreturned))
 
 #this is an api url to get info in json format, passing in a zip
 @app.route("/api/<string:zipcode>")
 def zip_code(zipcode):
     """Return details about a zip code from the db."""
     #get info from the db on this zipcode
-    returned_zip_info = db.execute("SELECT * from locations WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchone()
-    count_returned_zip_info = db.execute("SELECT count(*) from locations WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchone()
+    returned_zip_info = db.execute("SELECT * from locations WHERE zipcode = :zipcode",
+    {"zipcode": zipcode}).fetchone()
+    count_returned_zip_info = db.execute("SELECT count(*) from locations WHERE zipcode = :zipcode",
+    {"zipcode": zipcode}).fetchone()
     if count_returned_zip_info[0] < 1:
         return abort(404)
     #get all the info about the checkins at this locale
-    checkins = db.execute("SELECT count(*) from checkin WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchone()
+    checkins = db.execute("SELECT count(*) from checkin WHERE zipcode = :zipcode",
+    {"zipcode": zipcode}).fetchone()
     #return 'the data is %s' % returned_zip_info
     #return the data in json format by jsonifying it
     return jsonify({
