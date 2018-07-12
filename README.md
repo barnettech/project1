@@ -1,4 +1,7 @@
 # Project 1
+# A website where folks can search for a zip code and find the weather info
+# for that locale.  Then they can also checkin and leave a comment at that
+# location page.
 
 Web Programming with Python and JavaScript
 1.)  First from the command line set the environment variables by typing
