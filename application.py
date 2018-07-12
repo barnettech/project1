@@ -146,7 +146,7 @@ def searchresults():
       long = ''
       returned_zip_info = 'That zipcode is not in our database'
     print(f"returned zipcode information is {returned_zip_info}")
-    return(render_template("searchresults.html", returned_zip_info=returned_zip_info, zipcode=zipcode, zipreturned=zipreturned))
+    return(render_template("searchresults.html", count_returned_zip_info=count_returned_zip_info[0],returned_zip_info=returned_zip_info, zipcode=zipcode, zipreturned=zipreturned))
 
 #this is an api url to get info in json format, passing in a zip
 @app.route("/api/<string:zipcode>")
